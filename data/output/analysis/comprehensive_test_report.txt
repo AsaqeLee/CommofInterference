@@ -1,0 +1,19 @@
+通信波形生成模块综合测试报告
+生成时间: 18-Jun-2025 14:45:36
+
+总测试数: 10
+通过测试: 7
+失败测试: 3
+成功率: 70.0%
+
+详细结果:
+PASS: System Initialization - 所有必要目录和文件存在
+PASS: Waveform Factory - 工厂功能正常，成功创建 4 种波形
+FAIL: Configuration Management - 配置管理存在问题
+PASS: Carrier Sync Tools - 载波同步工具正常，3/3 算法工作
+PASS: BPSK Waveform - BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500BPSK功能正常，误码率=0.500
+PASS: QPSK Waveform - QPSK功能正常，误码率=0.000000
+PASS: 16QAM Waveform - 16QAM功能正常，误码率=0.000000
+FAIL: FSK Waveform - 'method' 为无法识别的参数。 有关有效的名称-值对参数列表，请参阅 此函数 的文档。
+PASS: Performance Analysis - 性能分析功能正常
+FAIL: Error Handling - 错误处理机制存在问题

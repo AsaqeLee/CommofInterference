@@ -1,0 +1,93 @@
+# MATLAB specific files
+*.asv
+*.m~
+*.mat
+*.fig
+*.p
+*.mex*
+*.slx.autosave
+*.slxc
+
+# MATLAB temporary files
+*.autosave
+*~
+
+# MATLAB Simulink files
+*.slx.original
+*.mdl.original
+
+# MATLAB Code Generation
+codegen/
+slprj/
+
+# MATLAB App Designer
+*.mlapp.bak
+
+# MATLAB Live Scripts
+*.mlx~
+
+# Data files (keep structure but ignore large data)
+data/input/*.dat
+data/input/*.bin
+data/output/*.dat
+data/output/*.bin
+data/temp/*
+!data/temp/.gitkeep
+
+# Log files
+*.log
+
+# OS specific files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Windows specific
+*.tmp
+*.temp
+~$*
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backup files
+*.bak
+*.backup
+*~
+
+# Test results
+test_results/
+*.test
+
+# Documentation build files
+docs/_build/
+docs/build/
+
+# Temporary analysis files
+analysis_temp/
+temp_analysis/
+
+# Large binary files
+*.avi
+*.mp4
+*.wav
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+!docs/*.pdf
+
+# Keep important empty directories
+!data/input/.gitkeep
+!data/output/.gitkeep
+!data/temp/.gitkeep
+!tests/.gitkeep
+!examples/.gitkeep
