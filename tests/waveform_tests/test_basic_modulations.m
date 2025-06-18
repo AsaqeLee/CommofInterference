@@ -2,7 +2,7 @@ function test_basic_modulations()
     % test_basic_modulations - 测试基础调制波形
     % 验证BPSK、QPSK、16QAM等基础调制波形的功能
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     fprintf('=== 基础调制波形测试 ===\n\n');

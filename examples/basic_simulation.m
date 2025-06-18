@@ -1,8 +1,8 @@
-function basic_simulation()
-    % basic_simulation - 基础仿真示例
+function main()
+    % main - 基础仿真示例主函数
     % 演示通信波形生成模块的基本使用方法
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     clc;
@@ -384,9 +384,9 @@ end
 if ~exist('OCTAVE_VERSION', 'builtin')
     % MATLAB环境
     if strcmp(mfilename, 'basic_simulation')
-        basic_simulation();
+        main();
     end
 else
     % Octave环境
-    basic_simulation();
+    main();
 end

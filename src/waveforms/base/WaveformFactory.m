@@ -2,7 +2,7 @@ classdef WaveformFactory < handle
     % WaveformFactory - 波形工厂类
     % 负责创建和管理各种通信波形实例
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)
@@ -328,6 +328,14 @@ classdef WaveformFactory < handle
             obj.waveform_registry('FM') = 'FM';
             obj.waveform_registry('AM') = 'AM';
             obj.waveform_registry('PM') = 'PM';
+
+            % 跳频波形
+            obj.waveform_registry('FM-FH') = 'FM_FH';
+            obj.waveform_registry('AM-FH') = 'AM_FH';
+            obj.waveform_registry('QPSK-FH') = 'QPSK_FH';
+
+            % 扩频跳频组合波形
+            obj.waveform_registry('QPSK-DSSS-FHSS') = 'QPSK_DSSS_FHSS';
         end
         
         function initialize_config_templates(obj)

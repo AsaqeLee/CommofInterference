@@ -2,7 +2,7 @@ classdef FSK < WaveformBase
     % FSK - 频移键控调制波形
     % 实现二进制FSK调制和解调功能
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)
@@ -118,20 +118,20 @@ classdef FSK < WaveformBase
             % 输入: signal - 接收到的复信号
             %      params - 解调参数
             % 输出: data - 解调后的二进制数据
-            
+
             % 参数检查
             if nargin < 3
                 params = struct();
             end
-            
+
             % 解析参数
             method = obj.get_param_value(params, 'method', 'coherent');  % 'coherent' 或 'noncoherent'
-            
+
             % 下变频
             t = (0:length(signal)-1) / obj.sample_rate;
             carrier = exp(-1j * 2*pi*obj.center_frequency*t);
             baseband_signal = signal .* carrier;
-            
+
             % 根据解调方法选择
             switch method
                 case 'coherent'
@@ -141,6 +141,25 @@ classdef FSK < WaveformBase
                 otherwise
                     error('FSK:InvalidMethod', '不支持的解调方法: %s', method);
             end
+        end
+
+        function data = recover_data(obj, received_signal, varargin)
+            % 从接收信号中恢复数据（统一接口）
+            % 输入: received_signal - 接收到的信号
+            %      varargin - 可选参数
+            % 输出: data - 恢复的数据
+
+            % 解析可选参数
+            p = inputParser;
+            addParameter(p, 'method', 'coherent', @(x) ismember(x, {'coherent', 'noncoherent'}));
+            addParameter(p, 'timing_recovery', true, @islogical);
+            addParameter(p, 'carrier_recovery', true, @islogical);
+
+            parse(p, varargin{:});
+            params = p.Results;
+
+            % 调用解调方法
+            data = obj.demodulate(received_signal, params);
         end
         
         function ber = calculate_ber(obj, original_data, received_data)

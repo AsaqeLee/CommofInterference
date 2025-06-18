@@ -2,7 +2,7 @@ classdef QAM16 < WaveformBase
     % QAM16 - 16进制正交幅度调制波形
     % 实现16QAM调制和解调功能
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)

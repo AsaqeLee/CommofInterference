@@ -2,7 +2,7 @@ classdef QPSK < WaveformBase
     % QPSK - 四进制相移键控调制波形
     % 实现QPSK调制和解调功能
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)

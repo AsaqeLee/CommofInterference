@@ -2,7 +2,7 @@ classdef BPSK < WaveformBase
     % BPSK - 二进制相移键控调制波形
     % 实现BPSK调制和解调功能
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)
@@ -16,18 +16,22 @@ classdef BPSK < WaveformBase
         constellation_points  % 星座点
         phase_offset         % 相位偏移
         amplitude           % 幅度
+        use_differential_encoding = true;  % 是否使用差分编码
+        last_transmitted_symbol = 1;      % 上一个发送的符号（用于差分编码）
     end
     
     methods
         function obj = BPSK()
             % 构造函数
             obj@WaveformBase();
-            
+
             % 初始化BPSK特定参数
             obj.modulation_order = 2;
             obj.constellation_points = [1, -1];  % BPSK星座点
             obj.phase_offset = 0;
             obj.amplitude = 1;
+            obj.use_differential_encoding = true;  % 默认启用差分编码
+            obj.last_transmitted_symbol = 1;      % 初始参考符号
         end
         
         function signal = modulate(obj, data, params)
@@ -164,7 +168,7 @@ classdef BPSK < WaveformBase
         function info = get_waveform_info(obj)
             % 获取波形信息
             % 输出: info - 波形信息结构体
-            
+
             info = struct();
             info.waveform_id = obj.WAVEFORM_ID;
             info.waveform_name = obj.WAVEFORM_NAME;
@@ -173,8 +177,14 @@ classdef BPSK < WaveformBase
             info.modulation_order = obj.modulation_order;
             info.constellation_points = obj.constellation_points;
             info.bits_per_symbol = log2(obj.modulation_order);
+            info.use_differential_encoding = obj.use_differential_encoding;
             info.theoretical_ber = @(snr_db) obj.theoretical_ber_bpsk(snr_db);
-            info.description = '二进制相移键控调制，使用0和π相位表示数据位0和1';
+
+            if obj.use_differential_encoding
+                info.description = '差分二进制相移键控调制(DBPSK)，通过相邻符号的相位差传输信息，解决相位模糊问题';
+            else
+                info.description = '二进制相移键控调制(BPSK)，使用0和π相位表示数据位0和1';
+            end
         end
     end
     
@@ -182,15 +192,19 @@ classdef BPSK < WaveformBase
         function configure_specific(obj, config_struct)
             % BPSK特定配置
             % 输入: config_struct - 配置结构体
-            
+
             if isfield(config_struct, 'phase_offset')
                 obj.phase_offset = config_struct.phase_offset;
             end
-            
+
             if isfield(config_struct, 'amplitude')
                 obj.amplitude = config_struct.amplitude;
             end
-            
+
+            if isfield(config_struct, 'use_differential_encoding')
+                obj.use_differential_encoding = config_struct.use_differential_encoding;
+            end
+
             % 确保调制阶数为2
             obj.modulation_order = 2;
         end
@@ -216,12 +230,39 @@ classdef BPSK < WaveformBase
         end
         
         function symbols = map_bits_to_symbols(obj, data)
-            % 比特到符号映射
+            % 比特到符号映射（支持差分编码）
             % 输入: data - 二进制数据
             % 输出: symbols - 复符号
 
-            % BPSK映射: 0 -> +1, 1 -> -1
-            symbols = 1 - 2*data;  % 0->+1, 1->-1
+            if obj.use_differential_encoding
+                % 差分编码：需要在数据前添加参考符号
+                % 数据位0 -> 无相位变化 (乘以+1)
+                % 数据位1 -> 180度相位变化 (乘以-1)
+
+                % 创建包含参考符号的符号序列
+                symbols = zeros(length(data) + 1, 1);
+                symbols(1) = obj.last_transmitted_symbol;  % 参考符号
+
+                current_symbol = obj.last_transmitted_symbol;
+
+                for i = 1:length(data)
+                    if data(i) == 0
+                        % 无相位变化
+                        current_symbol = current_symbol * 1;
+                    else
+                        % 180度相位变化
+                        current_symbol = current_symbol * (-1);
+                    end
+                    symbols(i + 1) = current_symbol;
+                end
+
+                % 更新最后发送的符号
+                obj.last_transmitted_symbol = current_symbol;
+            else
+                % 传统BPSK映射: 0 -> +1, 1 -> -1
+                symbols = 1 - 2*data;  % 0->+1, 1->-1
+            end
+
             symbols = complex(symbols, 0);  % 转换为复数
         end
         
@@ -332,39 +373,81 @@ classdef BPSK < WaveformBase
         end
         
         function data = symbol_decision(obj, symbols)
-            % 符号判决（带相位模糊检测）
+            % 符号判决（支持差分解码）
             % 输入: symbols - 接收符号
             % 输出: data - 判决后的数据
 
-            % BPSK判决：映射 0 -> +1, 1 -> -1
-            % 所以判决时：+1 -> 0, -1 -> 1
+            if obj.use_differential_encoding
+                % 差分解码：比较相邻符号的相位差
+                data = obj.differential_decode(symbols);
+            else
+                % 传统BPSK判决：映射 0 -> +1, 1 -> -1
+                % 所以判决时：+1 -> 0, -1 -> 1
+                real_parts = real(symbols);
 
-            % 基本判决
-            data_normal = double(real(symbols) < 0);
-            data_inverted = double(real(symbols) > 0);
+                % 基本判决
+                data_normal = double(real_parts < 0);
+                data_inverted = double(real_parts > 0);
 
-            % 相位模糊检测：使用前导码或已知模式
-            % 简化方法：假设前几个符号是已知的训练序列
-            if length(symbols) >= 4
-                % 使用交替模式 [0,1,0,1] 作为参考
-                reference_pattern = [0, 1, 0, 1];
+                % 简单的相位模糊检测：比较星座点的均值
+                if length(symbols) >= 4
+                    % 计算两种判决下的星座点均值
+                    mean_0_normal = mean(real_parts(data_normal == 0));
+                    mean_1_normal = mean(real_parts(data_normal == 1));
 
-                % 计算两种判决的匹配度
-                match_normal = sum(data_normal(1:4) == reference_pattern);
-                match_inverted = sum(data_inverted(1:4) == reference_pattern);
+                    mean_0_inverted = mean(real_parts(data_inverted == 0));
+                    mean_1_inverted = mean(real_parts(data_inverted == 1));
 
-                % 选择匹配度更高的判决
-                if match_inverted > match_normal
-                    data = data_inverted;
-                    % fprintf('检测到相位模糊，使用反向判决\n');
+                    % 计算分离度（均值差的绝对值）
+                    separation_normal = abs(mean_0_normal - mean_1_normal);
+                    separation_inverted = abs(mean_0_inverted - mean_1_inverted);
+
+                    % 选择分离度更大的判决
+                    if separation_inverted > separation_normal
+                        data = data_inverted;
+                    else
+                        data = data_normal;
+                    end
                 else
+                    % 符号数量太少，直接使用正常判决
                     data = data_normal;
                 end
-            else
-                % 符号数量不足，使用正常判决
-                data = data_normal;
             end
         end
+
+        function data = differential_decode(obj, symbols)
+            % 差分解码
+            % 输入: symbols - 接收符号序列
+            % 输出: data - 解码后的数据
+
+            if length(symbols) < 2
+                % 符号数量不足，无法进行差分解码
+                data = [];
+                return;
+            end
+
+            % 初始化 - 注意：差分解码的输出长度等于输入长度
+            % 第一个符号作为参考，不包含数据信息
+            data = zeros(length(symbols), 1);
+
+            % 差分解码：比较相邻符号的相位
+            for i = 2:length(symbols)
+                % 计算相邻符号的相位差
+                phase_diff = angle(symbols(i) * conj(symbols(i-1)));
+
+                % 判决：相位差接近0为数据位0，接近π为数据位1
+                if abs(phase_diff) < pi/2
+                    data(i) = 0;  % 无相位变化
+                else
+                    data(i) = 1;  % 180度相位变化
+                end
+            end
+
+            % 移除第一个参考符号，返回实际数据
+            data = data(2:end);
+        end
+
+
         
         function [psd, frequencies] = compute_psd(obj, signal, nfft, window_type)
             % 计算功率谱密度

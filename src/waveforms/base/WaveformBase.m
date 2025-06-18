@@ -2,7 +2,7 @@ classdef (Abstract) WaveformBase < handle
     % WaveformBase - 通信波形基类
     % 定义所有通信波形的统一接口和基础功能
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Abstract, Constant)

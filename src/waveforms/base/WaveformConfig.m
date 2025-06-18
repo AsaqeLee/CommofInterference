@@ -2,7 +2,7 @@ classdef WaveformConfig < handle
     % WaveformConfig - 波形配置管理类
     % 负责管理和验证波形配置参数
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)

@@ -2,7 +2,7 @@ classdef CarrierSync < handle
     % CarrierSync - 载波同步工具类
     % 实现各种载波频率和相位恢复算法
     %
-    % 作者: 通信干扰仿真平台开发团队
+    % 作者: Asaqe Lee
     % 日期: 2025-06-18
     
     properties (Constant)
