@@ -1,0 +1,19 @@
+# 初始化Git仓库（如果尚未初始化）
+git init
+
+# 添加所有文件
+git add .
+
+# 提交初始版本
+git commit -m "feat: 完整实现8种干扰信号的通信干扰对抗仿真系统"
+
+# 添加远程仓库（替换为您的GitHub仓库URL）
+git remote add origin https://github.com/asaqe/CommOfInterference.git
+
+# 推送到GitHub
+git branch -M main
+git push -u origin main
+
+# 创建发布标签
+git tag -a v1.0.0 -m "Release version 1.0.0: 完整的8种干扰信号实现"
+git push origin v1.0.0
